@@ -61,7 +61,7 @@ ROSTER = construct_roster(DUES)
 # %%
 
 # Calculate spark points for each due-paying member 💰💰💰
-# Assumes there are no duplicates in the dues csv
+# Assumes there are no duplicates in the roster csv
 for index, member in ROSTER.iterrows():
     for meeting in MEETINGS:
         if check_attendance(member["EID"], meeting):
