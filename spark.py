@@ -2,7 +2,6 @@
 import pandas as pd
 import os
 import glob
-import xlwt
 
 MEETING_POINTS = 20
 SOCIAL_POINTS = 10
@@ -14,7 +13,7 @@ def parse_csv():
     Parse the csv files in their respective directories and
     return as lists of DataFrames.
     """
-    parsed_dues = pd.read_csv('data/Dues.csv')
+    parsed_dues = pd.read_csv('data/dues.csv')
 
     # Get the full system path. Windows seems to really care about this.
     meetings_path = os.path.join(os.getcwd(), "data/meetings")
@@ -39,6 +38,7 @@ def construct_roster(dues):
     # Just take the columns from the dues form
     roster["Name"] = dues["Name"]
     roster["EID"] = dues["EID"]
+    roster["Email"] = dues["Preferred Email"]
     # Add a column for spark points with default 0
     roster["Spark Points"] = 0
 
@@ -60,6 +60,8 @@ DUES, MEETINGS, SOCIALS = parse_csv()
 ROSTER = construct_roster(DUES)
 # %%
 
+# Calculate spark points for each due-paying member 💰💰💰
+# Assumes there are no duplicates in the dues csv
 for index, member in ROSTER.iterrows():
     for meeting in MEETINGS:
         if check_attendance(member["EID"], meeting):
@@ -69,4 +71,4 @@ for index, member in ROSTER.iterrows():
             ROSTER.at[index, "Spark Points"] += SOCIAL_POINTS
 
 # %%
-print(ROSTER)
+ROSTER.to_excel("roster.xlsx", index=False)
