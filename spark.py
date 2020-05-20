@@ -15,7 +15,7 @@ def parse_csv():
     """
     parsed_dues = pd.read_csv('data/dues.csv')
 
-    # Get the full system path. Windows seems to really care about this.
+    # Get the full file path. Windows seems to really care about this.
     meetings_path = os.path.join(os.getcwd(), "data/meetings")
     # Create a list of all the csv files in the directory
     meetings = glob.glob(os.path.join(meetings_path, '*.csv'))
@@ -52,23 +52,29 @@ def check_attendance(eid, meeting):
     # Iterate through list of EIDs
     for index, attendee in meeting.iterrows():
         if attendee["What's your EID?"].lower() == eid.lower():
+            # This accounts for duplicate sign-ins nicely
             return True
     return False    
 
 # %%
 DUES, MEETINGS, SOCIALS = parse_csv()
 ROSTER = construct_roster(DUES)
-# %%
 
+# %%
 # Calculate spark points for each due-paying member 💰💰💰
-# Assumes there are no duplicates in the roster csv
+
+# For every row in the roster
 for index, member in ROSTER.iterrows():
+    # For every meeting
     for meeting in MEETINGS:
+        # See if that member's EID matches a sign-in
         if check_attendance(member["EID"], meeting):
+            # And give them points if it does
             ROSTER.at[index, "Spark Points"] += MEETING_POINTS
     for social in SOCIALS:
         if check_attendance(member["EID"], social):
             ROSTER.at[index, "Spark Points"] += SOCIAL_POINTS
 
 # %%
+# Exactly like it says on the tin
 ROSTER.to_excel("roster.xlsx", index=False)
